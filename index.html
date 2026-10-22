@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>कागदपत्रे</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Noto Sans Devanagari','Mukta','Mangal',sans-serif;background:#e5e7eb;color:#000}
+.ui{font-family:inherit}
+#top{position:fixed;top:0;left:0;right:0;height:56px;display:flex;gap:6px;padding:6px;background:#fff;border-bottom:1px solid #ccc;z-index:5}
+#top button{flex:1;font:700 16px inherit;font-family:inherit;border:2px solid #1a56c4;background:#fff;color:#1a56c4;border-radius:10px}
+#top button.on{background:#1a56c4;color:#fff}
+#bot{position:fixed;bottom:0;left:0;right:0;height:64px;display:flex;gap:6px;padding:6px;background:#fff;border-top:1px solid #ccc;z-index:5}
+#bot button{font:700 15px inherit;font-family:inherit;border:0;border-radius:10px;color:#fff;background:#444;padding:0 10px}
+#bot .z{width:52px;font-size:28px;line-height:1}
+#bot .p{flex:1;background:#1a56c4}
+#bot .w{flex:2;background:#128c4a}
+#bot .c{background:#b3261e;font-size:13px}
+#sc{position:fixed;top:56px;bottom:64px;left:0;right:0;overflow:auto;padding:6px}
+.page{display:none;width:210mm;min-height:297mm;margin:0 auto;padding:10mm;background:#fff;box-shadow:0 1px 6px #0004;font-size:11.5pt;line-height:1.5}
+.page.on{display:block}
+.f{background:#fffbe0;outline:none;white-space:pre-wrap;word-break:break-word;caret-color:#d00}
+.f:focus{background:#fff1a8;box-shadow:0 0 0 2px #1a56c4}
+span.f{display:inline-block;min-width:2em;vertical-align:baseline;border-bottom:1px dotted #555}
+div.f{display:block;min-height:1.6em}
+h1{font-size:15pt;text-align:center;margin:0 0 2px}
+.cen{text-align:center;font-weight:700;margin:2px 0}
+h3{font-size:11.5pt;margin:10px 0 3px;break-after:avoid}
+table.t{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:-1px}
+.t td,.t th{border:1px solid #000;padding:3px 5px;vertical-align:top;word-break:break-word}
+.t th{text-align:center;font-weight:700}
+.t tr{break-inside:avoid}
+.t td.n{text-align:center;width:9%}
+.ct tbody{counter-reset:r}
+.ct tbody tr{counter-increment:r}
+.ct td.n::before{content:counter(r)}
+.rc{display:flex;gap:10px;justify-content:flex-end;margin:6px 0 8px}
+.rc button{font:700 15px inherit;font-family:inherit;padding:8px 12px;border:2px solid #1a56c4;background:#fff;color:#1a56c4;border-radius:8px}
+.cb{display:inline-block;width:1.1em;height:1.1em;border:1.5px solid #000;vertical-align:-0.15em;margin:0 3px 0 10px;text-align:center;line-height:1em;font-size:1em;cursor:pointer}
+.cb.on::after{content:"✔";font-size:.95em}
+.sign{height:24mm}
+.l{font-weight:400}
+.letter{min-height:270mm;font-size:13pt;line-height:1.8}
+#msg{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9}
+#msg div{background:#fff;padding:22px;border-radius:14px;text-align:center;font-size:18px;max-width:85%}
+#msg button{margin-top:14px;font:700 18px inherit;font-family:inherit;padding:12px 20px;border:0;border-radius:10px;background:#128c4a;color:#fff}
+@page{size:A4;margin:10mm}
+@media print{
+ body{background:#fff}
+ .ui,#top,#bot,#msg{display:none!important}
+ #sc{position:static;padding:0;overflow:visible}
+ #wrap{zoom:1!important}
+ .page{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}
+ .f{background:none!important;box-shadow:none!important}
+ span.f{border-bottom:0}
+}
+</style>
+</head>
+<body>
+<div id="top" class="ui">
+ <button data-p="a" class="on">दोषारोप पत्र</button>
+ <button data-p="b">केस डायरी</button>
+ <button data-p="c">पत्र</button>
+</div>
+<div id="sc"><div id="wrap">
+ <div class="page on" id="a"></div>
+ <div class="page" id="b"></div>
+ <div class="page" id="c"></div>
+</div></div>
+<div id="bot" class="ui">
+ <button class="z" id="zo">−</button>
+ <button class="z" id="zi">+</button>
+ <button class="p" id="pr">प्रिंट</button>
+ <button class="w" id="sh">PDF पाठवा</button>
+ <button class="c" id="cl">पुसा</button>
+</div>
+<div id="msg"><div><span id="mt"></span><br><button id="mb" style="display:none">शेअर करा</button></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+const E='contenteditable="plaintext-only"';
+const f=(w=2.2)=>`<span class="f" ${E} style="min-width:${w}em"></span>`;
+const dt=`${f()} / ${f()} / २०२६`;
+const B=(h=1.6,v='')=>`<div class="f" ${E} style="min-height:${h}em">${v}</div>`;
+const cb=t=>`<span class="cb"></span>${t}`;
+const R=n=>`<tr><td class="n"></td>${`<td class="f" ${E}></td>`.repeat(n-1)}</tr>`;
+const T=(h,w)=>`<table class="t ct"><colgroup>${w.map(x=>`<col style="width:${x}%">`).join('')}</colgroup><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${R(h.length)}</tbody></table><div class="rc ui"><button data-a="rem">− ओळ कमी करा</button><button data-a="add">+ ओळ वाढवा</button></div>`;
+const kv=(l,v,c=3)=>`<tr><td>${l}</td><td colspan="${c}">${v}</td></tr>`;
+const box=(h)=>`<table class="t"><tr><td>${B(h)}</td></tr></table>`;
+
+document.getElementById('a').innerHTML=`
+<h1>दोषारोप पत्र/अंतिम अहवाल</h1>
+<div class="cen">(बी. एन. एस. एस. कलम १९३ अन्वये)</div>
+<div class="cen" style="margin-bottom:6px">मा. प्रथमवर्ग न्यायदंडाधिकारी सो., प्रथमश्रेणी न्यायालय, धरणगांव यांना सविनय सादर</div>
+<table class="t"><tr><td>१. जिल्हा :</td><td>जळगांव</td><td>पोलीस ठाणे :</td><td>धरणगांव</td><td>वर्ष :</td><td>२०२६</td></tr></table>
+<table class="t"><colgroup><col style="width:30%"><col style="width:28%"><col style="width:14%"><col style="width:28%"></colgroup>
+<tr><td>२. पहिली खबर क्रं. / CCTNS No. :</td><td>${B()}</td><td>दिनांक :</td><td>${dt}</td></tr>
+${kv('३. दोषारोप पत्र क्र. :',f(4)+' / २०२६')}
+${kv('४. तारीख :',dt+' (दिवस / महिना / वर्ष)')}
+${kv('५. (i) अधिनियम :',B())}
+${kv('(ii) अधिनियम :',B())}
+${kv('(iii) अधिनियम :',B())}
+${kv('६. अंतिम अहवालाचा प्रकार :',B())}
+${kv('७. जर अंतिम अहवालाचा प्रकार/घडला नाही :',B())}
+${kv('८. जर आरोप पत्र ठेवले :',cb('मुळ')+'&nbsp;&nbsp;'+cb('तात्पुरते')+'&nbsp;&nbsp;'+cb('पुरवणी'))}
+${kv('९. तपासणी अधिकाऱ्याचे नांव व पदनाम :',B())}
+${kv('१०. (a) तक्रारदाराचे/खबरीचे नांव :',B())}
+${kv('(b) पित्याचे/पतीचे नांव :',B())}
+</table>
+<h3>११) कोर्टात दोषारोप पाठविलेल्या आरोपीतांची यादी/फरारीसह असल्यास</h3>
+${T(['अ.क्र.','आरोपीचे संपूर्ण नांव व पत्ता','वय','अटक दिनांक','रिमांड दिनांक','शेरा'],[8,36,8,16,16,16])}
+<h3>१२) पडताळलेल्या साक्षीदारांचे विवरण</h3>
+${T(['अ.क्र.','साक्षीदाराचे नाव','वय','पत्ता','तपासाचा प्रकार'],[8,30,8,32,22])}
+<h3>१३) पहिली खबर खोटी असेल तर भारतीय न्याय संहितेच्या २०२/२३४ अन्वये केलेली किंवा करावयाची कार्यवाही नमूद करावी :</h3>
+${box(3)}
+<table class="t" style="margin-top:8px"><colgroup><col style="width:34%"><col style="width:66%"></colgroup><tr><td>१४) प्रयोगशाळा विश्लेषणाचे निष्कर्ष :</td><td>${B(2)}</td></tr></table>
+<h3>१५) तपासणीचे वेळी परत मिळविलेल्या / जप्त केलेल्या आणि अवलंबून राहिलेल्या मालमत्तेचा / वस्तूचा तपशील</h3>
+<div>(आवश्यक असेल तर स्वतंत्र यादी सोबत जोडण्यात येईल)</div>
+${T(['अ.क्र.','मालमत्तेचे वर्णन','मालमत्ता कोणाकडून / कोठून जप्त केली','मूल्य रुपये','नोंदवही क्रमांक','विल्हेवाट'],[8,28,24,12,14,14])}
+<h3>१६) प्रकरणाची थोडक्यात माहिती :</h3>
+${box(10)}
+<table class="t" style="margin-top:8px"><tr><td>१७) कलम १९३ प्रमाणे सूचना फॉर्म बजावला जावक क्रं. ${f(3)} / २०२६ दि. ${dt}</td></tr></table>
+<table class="t"><colgroup><col style="width:34%"><col style="width:66%"></colgroup>
+<tr><td>१८) कोर्ट सी.सी. नं. :</td><td>${B()}</td></tr>
+<tr><td>१९) कोर्टाचा निकाल :</td><td>${B()}</td></tr></table>
+<table class="t" style="margin-top:8px"><tr><td>२०) प्रभारी अधिकाऱ्यांची सही :</td><td>दोषारोप पत्र सादर करणारे अंमलदार सही</td></tr><tr><td class="sign"></td><td class="sign"></td></tr></table>`;
+
+const row=(n,l,v)=>`<tr><td class="n" style="width:8%">${n}</td><td><b>${l}</b></td><td>${v}</td></tr>`;
+const labs=['फिर्यादीचे नाव','आरोपीचे नाव','अप.घडता तारीख वेळ','अप.घडला ठिकाण','अपराध दाखल तारीख वेळ','जखमी /पिडीत','वापरलेले हत्यार','जप्त माल','भेट दिल्याचे ठिकाण','तपास सुरु व संपल्याची वेळ','गुरनं व कलम'];
+const nums=['४','५','६','७','८','९','१०','११','१२','१३','१४'];
+document.getElementById('b').innerHTML=`
+<table class="t"><colgroup><col style="width:8%"><col style="width:46%"><col style="width:46%"></colgroup>
+<tr><td></td><td><b>केसडायरी X</b></td><td><b>मा. डा. नं.</b> ${f(4)}</td></tr>
+<tr><td></td><td>दि. ${dt}</td><td>दिनांक ${dt}</td></tr>
+${row('१','पोलीस ठाणे','धरणगांव')}
+${row('२','जिल्हा','जळगांव')}
+${row('३','अन्वेषण अधिकारी',B(1.6,'श्रेपोउनि, प्रकाश दामोदर चव्हाण, नेम. धरणगांव पोलीस स्टेशन'))}
+${labs.map((l,i)=>row(nums[i],l,B())).join('')}
+${row('१५','केसडायरी','गुरनं. '+f(3)+' /२६ X दि. '+dt)}
+</table>
+<h3 style="margin-top:12px">तपासाचा खुलासा:-</h3>
+<div class="f letter" ${E} style="min-height:150mm;font-size:12pt;line-height:1.7"></div>`;
+
+document.getElementById('c').innerHTML=`<div class="f letter" ${E}></div>`;
+
+const init={};['a','b','c'].forEach(i=>init[i]=document.getElementById(i).innerHTML);
+const names={a:'दोषारोप पत्र',b:'केस डायरी',c:'पत्र'};
+let cur='a',z=1;
+const wrap=document.getElementById('wrap');
+const setZ=v=>{z=Math.max(.3,Math.min(2.2,v));wrap.style.zoom=z};
+setZ((innerWidth-14)/794);
+
+document.querySelectorAll('#top button').forEach(b=>b.onclick=()=>{
+ cur=b.dataset.p;
+ document.querySelectorAll('#top button').forEach(x=>x.classList.toggle('on',x===b));
+ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id===cur));
+ document.getElementById('sc').scrollTop=0;
+});
+zi.onclick=()=>setZ(z+.15);
+zo.onclick=()=>setZ(z-.15);
+pr.onclick=()=>print();
+cl.onclick=()=>{if(confirm('ही सर्व माहिती पुसायची का?'))document.getElementById(cur).innerHTML=init[cur]};
+
+document.addEventListener('click',e=>{
+ const c=e.target.closest('.cb');if(c)c.classList.toggle('on');
+ const b=e.target.closest('.rc button');if(!b)return;
+ const tb=b.closest('.rc').previousElementSibling.tBodies[0];
+ if(b.dataset.a==='add'){const r=tb.lastElementChild.cloneNode(true);r.querySelectorAll('.f').forEach(x=>x.textContent='');tb.appendChild(r)}
+ else if(tb.rows.length>1)tb.lastElementChild.remove();
+});
+
+const msg=document.getElementById('msg'),mt=document.getElementById('mt'),mb=document.getElementById('mb');
+const show=(t,btn)=>{mt.textContent=t;mb.style.display=btn?'inline-block':'none';msg.style.display='flex'};
+let file=null;
+const doShare=async()=>{
+ try{await navigator.share({files:[file]});msg.style.display='none'}
+ catch(e){if(e.name==='AbortError')msg.style.display='none';else show('शेअर करता आले नाही. PDF डाउनलोड केला आहे.',false),dl()}
+};
+const dl=()=>{const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;a.click()};
+mb.onclick=doShare;
+msg.onclick=e=>{if(e.target===msg)msg.style.display='none'};
+
+sh.onclick=async()=>{
+ show('PDF तयार होत आहे... कृपया थांबा');
+ try{
+  const el=document.getElementById(cur).cloneNode(true);
+  el.className='';el.style.cssText='width:190mm;padding:0;margin:0;background:#fff;font-size:11.5pt;line-height:1.5';
+  el.querySelectorAll('.ui').forEach(x=>x.remove());
+  el.querySelectorAll('.f').forEach(x=>{x.style.background='none';x.style.boxShadow='none'});
+  el.querySelectorAll('span.f').forEach(x=>x.style.borderBottom='0');
+  const d=new Date();
+  const name=names[cur]+' '+d.getDate()+'-'+(d.getMonth()+1)+'-'+d.getFullYear()+'.pdf';
+  const blob=await html2pdf().set({margin:10,image:{type:'jpeg',quality:.95},html2canvas:{scale:2,backgroundColor:'#fff'},jsPDF:{unit:'mm',format:'a4'},pagebreak:{mode:['css','legacy'],avoid:'tr'}}).from(el).outputPdf('blob');
+  file=new File([blob],name,{type:'application/pdf'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+   try{await navigator.share({files:[file]});msg.style.display='none'}
+   catch(e){if(e.name==='AbortError')msg.style.display='none';else show('PDF तयार आहे. खालील बटन दाबा.',true)}
+  }else{dl();show('PDF डाउनलोड झाला.')}
+ }catch(e){show('PDF बनवता आला नाही. कृपया इंटरनेट तपासा.')}
+};
+</script>
+</body>
+</html>
