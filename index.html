@@ -18,7 +18,7 @@ body{margin:0;font-family:'Noto Sans Devanagari','Mukta','Mangal',sans-serif;bac
 #bot .w{flex:2;background:#128c4a}
 #bot .c{background:#b3261e;font-size:13px}
 #sc{position:fixed;top:56px;bottom:64px;left:0;right:0;overflow:auto;padding:6px}
-.page{display:none;width:210mm;min-height:297mm;margin:0 auto;padding:10mm;background:#fff;box-shadow:0 1px 6px #0004;font-size:11.5pt;line-height:1.5}
+.page{display:none;width:210mm;min-height:297mm;margin:0 auto;padding:25.4mm;background:#fff;box-shadow:0 1px 6px #0004;font-size:11.5pt;line-height:1.5}
 .page.on{display:block}
 .f{background:#fffbe0;outline:none;white-space:pre-wrap;word-break:break-word;caret-color:#d00}
 .f:focus{background:#fff1a8;box-shadow:0 0 0 2px #1a56c4}
@@ -39,15 +39,17 @@ table.t{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:-1p
 .rc button{font:700 15px inherit;font-family:inherit;padding:8px 12px;border:2px solid #1a56c4;background:#fff;color:#1a56c4;border-radius:8px}
 .cb{display:inline-block;width:1.1em;height:1.1em;border:1.5px solid #000;vertical-align:-0.15em;margin:0 3px 0 10px;text-align:center;line-height:1em;font-size:1em;cursor:pointer}
 .cb.on::after{content:"✔";font-size:.95em}
+.lb{padding-left:2.5em;text-indent:-2.5em}
+.ix{display:inline-block;width:2.5em;text-indent:0}
 .sign{height:24mm}
 .l{font-weight:400}
-.letter{min-height:270mm;font-size:13pt;line-height:1.8}
+.letter{min-height:230mm;font-size:13pt;line-height:1.8}
 #msg{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:9}
 #msg div{background:#fff;padding:22px;border-radius:14px;text-align:center;font-size:18px;max-width:85%}
 #msg button{margin-top:14px;font:700 18px inherit;font-family:inherit;padding:12px 20px;border:0;border-radius:10px;background:#128c4a;color:#fff}
 #b td:nth-child(2){white-space:nowrap}
 #b tr.h1 td,#b tr.h2 td{white-space:normal}
-@page{size:A4;margin:10mm}
+@page{size:A4;margin:25.4mm}
 @media print{
  body{background:#fff}
  .ui,#top,#bot,#msg{display:none!important}
@@ -94,8 +96,9 @@ const B=(h=1.6,v='')=>`<div class="f" ${E} style="min-height:${h}em">${v}</div>`
 const cb=t=>`<span class="cb"></span>${t}`;
 const R=n=>`<tr><td class="n"></td>${`<td class="f" ${E}></td>`.repeat(n-1)}</tr>`;
 const T=(h,w)=>`<table class="t ct"><colgroup>${w.map(x=>`<col style="width:${x}%">`).join('')}</colgroup><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${R(h.length)}</tbody></table><div class="rc ui"><button data-a="rem">− ओळ कमी करा</button><button data-a="add">+ ओळ वाढवा</button></div>`;
-const kv=(l,v,c=3)=>`<tr><td>${l}</td><td colspan="${c}">${v}</td></tr>`;
-const box=(h)=>`<table class="t"><tr><td>${B(h)}</td></tr></table>`;
+const lb=l=>{if(l[0]==='(')return `<div class="lb"><span class="ix"></span>${l}</div>`;const m=l.match(/^(\S+[.)])\s+(.*)$/);return m?`<div class="lb"><span class="ix">${m[1]}</span>${m[2]}</div>`:l};
+const kv=(l,v,c=3)=>`<tr><td>${lb(l)}</td><td colspan="${c}">${v}</td></tr>`;
+const box=(h)=>`<table class="t nb"><tr><td>${B(h)}</td></tr></table>`;
 
 document.getElementById('a').innerHTML=`
 <h1>दोषारोप पत्र/अंतिम अहवाल</h1>
@@ -103,7 +106,7 @@ document.getElementById('a').innerHTML=`
 <div class="cen" style="margin-bottom:6px">मा. प्रथमवर्ग न्यायदंडाधिकारी सो., प्रथमश्रेणी न्यायालय, धरणगांव यांना सविनय सादर</div>
 <table class="t nb"><tr><td>१. जिल्हा :</td><td>जळगांव</td><td>पोलीस ठाणे :</td><td>धरणगांव</td><td>वर्ष :</td><td>२०२६</td></tr></table>
 <table class="t nb"><colgroup><col style="width:30%"><col style="width:28%"><col style="width:14%"><col style="width:28%"></colgroup>
-<tr><td>२. पहिली खबर क्रं. / CCTNS No. :</td><td>${B()}</td><td>दिनांक :</td><td>${dt}</td></tr>
+<tr><td>${lb('२. पहिली खबर क्रं. / CCTNS No. :')}</td><td>${B()}</td><td>दिनांक :</td><td>${dt}</td></tr>
 ${kv('३. दोषारोप पत्र क्र. :',f(4)+' / २०२६')}
 ${kv('४. तारीख :',dt+' (दिवस / महिना / वर्ष)')}
 ${kv('५. (i) अधिनियम :',B())}
@@ -121,24 +124,24 @@ ${T(['अ.क्र.','आरोपीचे संपूर्ण नांव 
 <h3>१२) पडताळलेल्या साक्षीदारांचे विवरण</h3>
 ${T(['अ.क्र.','साक्षीदाराचे नाव','वय','पत्ता','तपासाचा प्रकार'],[8,30,8,32,22])}
 <h3>१३) पहिली खबर खोटी असेल तर भारतीय न्याय संहितेच्या २०२/२३४ अन्वये केलेली किंवा करावयाची कार्यवाही नमूद करावी :</h3>
-${box(3)}
-<table class="t nb" style="margin-top:8px"><colgroup><col style="width:34%"><col style="width:66%"></colgroup><tr><td>१४) प्रयोगशाळा विश्लेषणाचे निष्कर्ष :</td><td>${B(2)}</td></tr></table>
+${box(1.6)}
+<table class="t nb" style="margin-top:8px"><colgroup><col style="width:34%"><col style="width:66%"></colgroup><tr><td>${lb('१४) प्रयोगशाळा विश्लेषणाचे निष्कर्ष :')}</td><td>${B(2)}</td></tr></table>
 <h3>१५) तपासणीचे वेळी परत मिळविलेल्या / जप्त केलेल्या आणि अवलंबून राहिलेल्या मालमत्तेचा / वस्तूचा तपशील</h3>
 <div>(आवश्यक असेल तर स्वतंत्र यादी सोबत जोडण्यात येईल)</div>
 ${T(['अ.क्र.','मालमत्तेचे वर्णन','मालमत्ता कोणाकडून / कोठून जप्त केली','मूल्य रुपये','नोंदवही क्रमांक','विल्हेवाट'],[8,28,24,12,14,14])}
 <h3>१६) प्रकरणाची थोडक्यात माहिती :</h3>
-${box(5)}
+${box(1.6)}
 <table class="t nb" style="margin-top:8px"><tr><td>१७) कलम १९३ प्रमाणे सूचना फॉर्म बजावला जावक क्रं. ${f(3)} / २०२६ दि. ${dt}</td></tr></table>
 <table class="t nb"><colgroup><col style="width:34%"><col style="width:66%"></colgroup>
-<tr><td>१८) कोर्ट सी.सी. नं. :</td><td>${B()}</td></tr>
-<tr><td>१९) कोर्टाचा निकाल :</td><td>${B()}</td></tr></table>
-<table class="t nb" style="margin-top:8px"><tr><td>२०) प्रभारी अधिकाऱ्यांची सही :</td><td>दोषारोप पत्र सादर करणारे अंमलदार सही</td></tr><tr><td class="sign"></td><td class="sign"></td></tr></table>`;
+<tr><td>${lb('१८) कोर्ट सी.सी. नं. :')}</td><td>${B()}</td></tr>
+<tr><td>${lb('१९) कोर्टाचा निकाल :')}</td><td>${B()}</td></tr></table>
+<table class="t nb" style="margin-top:8px"><tr><td>${lb('२०) प्रभारी अधिकाऱ्यांची सही :')}</td><td>दोषारोप पत्र सादर करणारे अंमलदार सही</td></tr><tr><td class="sign"></td><td class="sign"></td></tr></table>`;
 
 const row=(n,l,v)=>`<tr><td class="n">${n}</td><td><b>${l}</b></td><td>${v}</td></tr>`;
 const labs=['फिर्यादीचे नाव','आरोपीचे नाव','अप.घडता तारीख वेळ','अप.घडला ठिकाण','अपराध दाखल तारीख वेळ','जखमी /पिडीत','वापरलेले हत्यार','जप्त माल','भेट दिल्याचे ठिकाण','तपास सुरु व संपल्याची वेळ','गुरनं व कलम'];
 const nums=['४','५','६','७','८','९','१०','११','१२','१३','१४'];
 document.getElementById('b').innerHTML=`
-<table class="t"><colgroup><col style="width:6%"><col style="width:35%"><col style="width:59%"></colgroup>
+<table class="t"><colgroup><col style="width:7%"><col style="width:39%"><col style="width:54%"></colgroup>
 <tr class="h1"><td></td><td><b>केसडायरी X</b></td><td><b>मा. डा. नं.</b> ${f(4)}</td></tr>
 <tr class="h2"><td></td><td>दि. ${dt}</td><td>दिनांक ${dt}</td></tr>
 ${row('१','पोलीस ठाणे','धरणगांव')}
@@ -148,7 +151,7 @@ ${labs.map((l,i)=>row(nums[i],l,B())).join('')}
 ${row('१५','केसडायरी','गुरनं. '+f(3)+' /२६ X दि. '+dt)}
 </table>
 <h3 style="margin-top:12px">तपासाचा खुलासा:-</h3>
-<div class="f letter" ${E} style="min-height:150mm;font-size:12pt;line-height:1.7"></div>`;
+<div class="f letter" ${E} style="min-height:120mm;font-size:12pt;line-height:1.7"></div>`;
 
 document.getElementById('c').innerHTML=`<div class="f letter" ${E}></div>`;
 
@@ -193,13 +196,13 @@ sh.onclick=async()=>{
  show('PDF तयार होत आहे... कृपया थांबा');
  try{
   const el=document.getElementById(cur).cloneNode(true);
-  el.className='out';el.style.cssText='width:190mm;padding:0;margin:0;background:#fff;font-size:11.5pt;line-height:1.5';
+  el.className='out';el.style.cssText='width:159.2mm;padding:0;margin:0;background:#fff;font-size:11.5pt;line-height:1.5';
   el.querySelectorAll('.ui').forEach(x=>x.remove());
   el.querySelectorAll('.f').forEach(x=>{x.style.background='none';x.style.boxShadow='none'});
   el.querySelectorAll('span.f').forEach(x=>x.style.borderBottom='0');
   const d=new Date();
   const name=names[cur]+' '+d.getDate()+'-'+(d.getMonth()+1)+'-'+d.getFullYear()+'.pdf';
-  const blob=await html2pdf().set({margin:10,image:{type:'jpeg',quality:.95},html2canvas:{scale:2,backgroundColor:'#fff'},jsPDF:{unit:'mm',format:'a4'},pagebreak:{mode:['css','legacy'],avoid:'tr'}}).from(el).outputPdf('blob');
+  const blob=await html2pdf().set({margin:25.4,image:{type:'jpeg',quality:.95},html2canvas:{scale:2,backgroundColor:'#fff'},jsPDF:{unit:'mm',format:'a4'},pagebreak:{mode:['css','legacy'],avoid:'tr'}}).from(el).outputPdf('blob');
   file=new File([blob],name,{type:'application/pdf'});
   if(navigator.canShare&&navigator.canShare({files:[file]})){
    try{await navigator.share({files:[file]});msg.style.display='none'}
